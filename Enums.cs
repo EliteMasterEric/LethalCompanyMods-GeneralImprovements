@@ -44,6 +44,7 @@ namespace GeneralImprovements
             PlayerHealthExact,
             PlayersAlive,
             ProfitQuota,
+            QuotaInfo,
             Sales,
             ScrapLeft,
             ShipScrap,

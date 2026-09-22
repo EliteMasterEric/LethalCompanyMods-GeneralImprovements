@@ -44,6 +44,7 @@ namespace GeneralImprovements.Utilities
         private static List<TextMeshProUGUI> _doorPowerMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _totalDaysMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _totalQuotasMonitorTexts = new List<TextMeshProUGUI>();
+        private static List<TextMeshProUGUI> _quotaInfoMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _totalDeathsMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _daysSinceDeathMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _dangerLevelMonitorTexts = new List<TextMeshProUGUI>();
@@ -268,6 +269,7 @@ namespace GeneralImprovements.Utilities
                 _doorPowerMonitorTexts.ForEach(g => Object.Destroy(g));
                 _totalDaysMonitorTexts.ForEach(g => Object.Destroy(g));
                 _totalQuotasMonitorTexts.ForEach(g => Object.Destroy(g));
+                _quotaInfoMonitorTexts.ForEach(g => Object.Destroy(g));
                 _totalDeathsMonitorTexts.ForEach(g => Object.Destroy(g));
                 _daysSinceDeathMonitorTexts.ForEach(g => Object.Destroy(g));
                 _dangerLevelMonitorTexts.ForEach(g => Object.Destroy(g));
@@ -307,6 +309,7 @@ namespace GeneralImprovements.Utilities
             _doorPowerMonitorTexts = new List<TextMeshProUGUI>();
             _totalDaysMonitorTexts = new List<TextMeshProUGUI>();
             _totalQuotasMonitorTexts = new List<TextMeshProUGUI>();
+            _quotaInfoMonitorTexts = new List<TextMeshProUGUI>();
             _totalDeathsMonitorTexts = new List<TextMeshProUGUI>();
             _daysSinceDeathMonitorTexts = new List<TextMeshProUGUI>();
             _dangerLevelMonitorTexts = new List<TextMeshProUGUI>();
@@ -376,6 +379,7 @@ namespace GeneralImprovements.Utilities
                     case eMonitorNames.PlayerHealthExact: curTexts = _playerExactHealthMonitorTexts; break;
                     case eMonitorNames.PlayersAlive: curTexts = _playersAliveMonitorTexts; break;
                     case eMonitorNames.ProfitQuota: curTexts = _profitQuotaTexts; break;
+                    case eMonitorNames.QuotaInfo: curTexts = _quotaInfoMonitorTexts; break;
                     case eMonitorNames.Sales: curTexts = _salesMonitorTexts; break;
                     case eMonitorNames.ScrapLeft: curTexts = _scrapLeftMonitorTexts; break;
                     case eMonitorNames.ShipScrap: curTexts = _shipScrapMonitorTexts; break;
@@ -532,6 +536,10 @@ namespace GeneralImprovements.Utilities
                     case eMonitorNames.TotalDays: _totalDaysMonitorTexts.Add(curMonitor.TextCanvas); break;
                     case eMonitorNames.TotalDeaths: _totalDeathsMonitorTexts.Add(curMonitor.TextCanvas); break;
                     case eMonitorNames.TotalQuotas: _totalQuotasMonitorTexts.Add(curMonitor.TextCanvas); break;
+                    case eMonitorNames.QuotaInfo:
+                        _quotaInfoMonitorTexts.Add(curMonitor.TextCanvas);
+                        UpdateQuotaInfoMonitors();
+                        break;
                     case eMonitorNames.Weather: _weatherMonitorTexts.Add(curMonitor.TextCanvas); break;
 
                     case eMonitorNames.ExternalCam:
@@ -617,6 +625,9 @@ namespace GeneralImprovements.Utilities
                     Plugin.MLS.LogInfo("Updated profit quota and deadline monitors");
                 }
             }
+
+            // Update combined quota info monitors, if any (handles deadline refreshes)
+            UpdateQuotaInfoMonitors();
         }
 
         public static void UpdateAverageDailyScrapMonitors()
@@ -991,7 +1002,7 @@ namespace GeneralImprovements.Utilities
                 {
                     _lastUpdatedCredits = groupCredits;
 
-                    if (UpdateGenericTextList(_creditsMonitorTexts, $"CREDITS:\n{ApplyColorToText($"{_lastUpdatedCredits}", "ffff00")}"))
+                    if (UpdateGenericTextList(_creditsMonitorTexts, $"CREDITS:\n${ApplyColorToText($"{_lastUpdatedCredits}", "ffff00")}"))
                     {
                         Plugin.MLS.LogInfo("Updated credits display.");
                     }
@@ -1036,6 +1047,23 @@ namespace GeneralImprovements.Utilities
                 if (UpdateGenericTextList(_totalQuotasMonitorTexts, $"QUOTA {TimeOfDay.Instance.timesFulfilledQuota + 1}"))
                 {
                     Plugin.MLS.LogInfo("Updated total quotas display.");
+                }
+            }
+
+            UpdateQuotaInfoMonitors();
+        }
+
+        public static void UpdateQuotaInfoMonitors()
+        {
+            if (_quotaInfoMonitorTexts.Count > 0 && TimeOfDay.Instance != null)
+            {
+                string dateline = $"DAY {StartOfRound.Instance.gameStats.daysSpent + 1}";
+                string totalQuota = $"QUOTA {TimeOfDay.Instance.timesFulfilledQuota + 1}";
+                string deadline = StartOfRound.Instance && StartOfRound.Instance.deadlineMonitorText ? StartOfRound.Instance.deadlineMonitorText.text : string.Empty;
+
+                if (UpdateGenericTextList(_quotaInfoMonitorTexts, $"{dateline}\n{totalQuota}\n{deadline}"))
+                {
+                    Plugin.MLS.LogInfo("Updated quota info display.");
                 }
             }
         }

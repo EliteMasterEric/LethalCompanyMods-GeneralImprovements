@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+* Added a new `QuotaInfo` ship monitor option that displays the current date, quota, and deadline together on a single monitor, conserving space.
+
 ## v1.5.5 - Minor mod fixes
 * Updated `KeepItemsDuringInverse` and `KeepItemsDuringTeleport` to include utility slot when being set to `Held`.
 * Fixed bug with seting teleporters to drop held or non-scrap items that prevented teleporters from working at all.
