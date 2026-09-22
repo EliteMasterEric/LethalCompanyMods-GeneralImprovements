@@ -34,6 +34,7 @@ namespace GeneralImprovements
             CurrentMoon,
             CustomText,
             DailyProfit,
+            DailyProfitOrSoldScrap,
             DangerLevel,
             DaysSinceDeath,
             Deadline,

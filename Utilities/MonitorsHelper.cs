@@ -33,6 +33,7 @@ namespace GeneralImprovements.Utilities
         private static List<TextMeshProUGUI> _currentMoonTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _customMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _dailyProfitMonitorTexts = new List<TextMeshProUGUI>();
+        private static List<TextMeshProUGUI> _dailyProfitOrSoldScrapMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _shipScrapMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _soldScrapMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _scrapLeftMonitorTexts = new List<TextMeshProUGUI>();
@@ -259,6 +260,7 @@ namespace GeneralImprovements.Utilities
                 _currentMoonTexts.ForEach(g => Object.Destroy(g));
                 _customMonitorTexts.ForEach(g => Object.Destroy(g));
                 _dailyProfitMonitorTexts.ForEach(g => Object.Destroy(g));
+                _dailyProfitOrSoldScrapMonitorTexts.ForEach(g => Object.Destroy(g));
                 _shipScrapMonitorTexts.ForEach(g => Object.Destroy(g));
                 _soldScrapMonitorTexts.ForEach(g => Object.Destroy(g));
                 _scrapLeftMonitorTexts.ForEach(g => Object.Destroy(g));
@@ -300,6 +302,7 @@ namespace GeneralImprovements.Utilities
             _currentMoonTexts = new List<TextMeshProUGUI>();
             _customMonitorTexts = new List<TextMeshProUGUI>();
             _dailyProfitMonitorTexts = new List<TextMeshProUGUI>();
+            _dailyProfitOrSoldScrapMonitorTexts = new List<TextMeshProUGUI>();
             _shipScrapMonitorTexts = new List<TextMeshProUGUI>();
             _soldScrapMonitorTexts = new List<TextMeshProUGUI>();
             _scrapLeftMonitorTexts = new List<TextMeshProUGUI>();
@@ -371,6 +374,7 @@ namespace GeneralImprovements.Utilities
                     case eMonitorNames.CurrentMoon: curTexts = _currentMoonTexts; break;
                     case eMonitorNames.CustomText: curTexts = _customMonitorTexts; break;
                     case eMonitorNames.DailyProfit: curTexts = _dailyProfitMonitorTexts; break;
+                    case eMonitorNames.DailyProfitOrSoldScrap: curTexts = _dailyProfitOrSoldScrapMonitorTexts; break;
                     case eMonitorNames.Credits: curTexts = _creditsMonitorTexts; break;
                     case eMonitorNames.DangerLevel: curTexts = _dangerLevelMonitorTexts; break;
                     case eMonitorNames.DaysSinceDeath: curTexts = _daysSinceDeathMonitorTexts; break;
@@ -493,6 +497,7 @@ namespace GeneralImprovements.Utilities
                         _customMonitorTexts.Add(curMonitor.TextCanvas);
                         break;
                     case eMonitorNames.DailyProfit: _dailyProfitMonitorTexts.Add(curMonitor.TextCanvas); break;
+                    case eMonitorNames.DailyProfitOrSoldScrap: _dailyProfitOrSoldScrapMonitorTexts.Add(curMonitor.TextCanvas); break;
                     case eMonitorNames.Credits: _creditsMonitorTexts.Add(curMonitor.TextCanvas); break;
                     case eMonitorNames.DangerLevel: _dangerLevelMonitorTexts.Add(curMonitor.TextCanvas); break;
                     case eMonitorNames.DaysSinceDeath: _daysSinceDeathMonitorTexts.Add(curMonitor.TextCanvas); break;
@@ -794,6 +799,8 @@ namespace GeneralImprovements.Utilities
                     Plugin.MLS.LogInfo("Updated sold scrap display.");
                 }
             }
+
+            UpdateDailyProfitOrSoldScrapMonitors();
         }
 
         public static void UpdateDailyProfitMonitors()
@@ -804,6 +811,30 @@ namespace GeneralImprovements.Utilities
                 if (UpdateGenericTextList(_dailyProfitMonitorTexts, $"DAY'S PROFIT:\n${profit}"))
                 {
                     Plugin.MLS.LogInfo($"Updated daily profit monitors. ({RoundManager.Instance.scrapDroppedInShip.Count} items, {profit} profit)");
+                }
+            }
+
+            UpdateDailyProfitOrSoldScrapMonitors();
+        }
+
+        public static void UpdateDailyProfitOrSoldScrapMonitors()
+        {
+            if (_dailyProfitOrSoldScrapMonitorTexts.Count > 0 && RoundManager.Instance != null)
+            {
+                string text;
+                if (DepositItemsDeskPatch.ProfitThisQuota > 0)
+                {
+                    text = $"SOLD SCRAP:\n{ApplyColorToText($"${DepositItemsDeskPatch.ProfitThisQuota}", "00ff00")}";
+                }
+                else
+                {
+                    int profit = RoundManager.Instance.scrapDroppedInShip.Sum(s => s.scrapValue);
+                    text = $"DAY'S PROFIT:\n${profit}";
+                }
+
+                if (UpdateGenericTextList(_dailyProfitOrSoldScrapMonitorTexts, text))
+                {
+                    Plugin.MLS.LogInfo("Updated daily profit / sold scrap display.");
                 }
             }
         }

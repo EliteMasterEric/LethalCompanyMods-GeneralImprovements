@@ -18,7 +18,7 @@ namespace GeneralImprovements.Patches
         {
             var codeList = instructions.ToList();
 
-            if (Plugin.ShipMonitorAssignments.Any(a => a.Value == eMonitorNames.DailyProfit))
+            if (Plugin.ShipMonitorAssignments.Any(a => a.Value == eMonitorNames.DailyProfit || a.Value == eMonitorNames.DailyProfitOrSoldScrap))
             {
                 if (codeList.TryFindInstructions(new System.Func<CodeInstruction, bool>[]
                 {
