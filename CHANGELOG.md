@@ -2,6 +2,7 @@
 
 ## Unreleased
 * Added a new `QuotaInfo` ship monitor option that displays the current date, quota, and deadline together on a single monitor, conserving space.
+* Added a new `NetWorth` ship monitor option that displays the current credits and ship scrap value together on a single monitor.
 
 ## v1.5.5 - Minor mod fixes
 * Updated `KeepItemsDuringInverse` and `KeepItemsDuringTeleport` to include utility slot when being set to `Held`.

@@ -39,6 +39,7 @@ namespace GeneralImprovements.Utilities
         private static List<TextMeshProUGUI> _timeMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _weatherMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _fancyWeatherMonitorTexts = new List<TextMeshProUGUI>();
+        private static List<TextMeshProUGUI> _netWorthMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _salesMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _creditsMonitorTexts = new List<TextMeshProUGUI>();
         private static List<TextMeshProUGUI> _doorPowerMonitorTexts = new List<TextMeshProUGUI>();
@@ -264,6 +265,7 @@ namespace GeneralImprovements.Utilities
                 _timeMonitorTexts.ForEach(g => Object.Destroy(g));
                 _weatherMonitorTexts.ForEach(g => Object.Destroy(g));
                 _fancyWeatherMonitorTexts.ForEach(g => Object.Destroy(g));
+                _netWorthMonitorTexts.ForEach(g => Object.Destroy(g));
                 _salesMonitorTexts.ForEach(g => Object.Destroy(g));
                 _creditsMonitorTexts.ForEach(g => Object.Destroy(g));
                 _doorPowerMonitorTexts.ForEach(g => Object.Destroy(g));
@@ -304,6 +306,7 @@ namespace GeneralImprovements.Utilities
             _timeMonitorTexts = new List<TextMeshProUGUI>();
             _weatherMonitorTexts = new List<TextMeshProUGUI>();
             _fancyWeatherMonitorTexts = new List<TextMeshProUGUI>();
+            _netWorthMonitorTexts = new List<TextMeshProUGUI>();
             _salesMonitorTexts = new List<TextMeshProUGUI>();
             _creditsMonitorTexts = new List<TextMeshProUGUI>();
             _doorPowerMonitorTexts = new List<TextMeshProUGUI>();
@@ -374,6 +377,7 @@ namespace GeneralImprovements.Utilities
                     case eMonitorNames.Deadline: curTexts = _deadlineTexts; break;
                     case eMonitorNames.DoorPower: curTexts = _doorPowerMonitorTexts; break;
                     case eMonitorNames.FancyWeather: curTexts = _fancyWeatherMonitorTexts; break;
+                    case eMonitorNames.NetWorth: curTexts = _netWorthMonitorTexts; break;
                     case eMonitorNames.OvertimeCalculator: curTexts = _overtimeCalculatorMonitorTexts; break;
                     case eMonitorNames.PlayerHealth: curTexts = _playerHealthMonitorTexts; break;
                     case eMonitorNames.PlayerHealthExact: curTexts = _playerExactHealthMonitorTexts; break;
@@ -507,6 +511,10 @@ namespace GeneralImprovements.Utilities
                         }
                         _fancyWeatherMonitorTexts.Add(curMonitor.TextCanvas);
                         UpdateWeatherMonitors();
+                        break;
+                    case eMonitorNames.NetWorth:
+                        _netWorthMonitorTexts.Add(curMonitor.TextCanvas);
+                        UpdateNetWorthMonitors();
                         break;
                     case eMonitorNames.OvertimeCalculator: _overtimeCalculatorMonitorTexts.Add(curMonitor.TextCanvas); break;
                     case eMonitorNames.PlayerHealth:
@@ -699,6 +707,9 @@ namespace GeneralImprovements.Utilities
                     Plugin.MLS.LogInfo($"Updated ship scrap total monitors to ${scrapValue} ({shipScrap.Count} items).");
                 }
             }
+
+            // Net worth must also update when scrap changes
+            UpdateNetWorthMonitors();
 
             // Scrap left
             if (_scrapLeftMonitorTexts.Count > 0)
@@ -998,14 +1009,16 @@ namespace GeneralImprovements.Utilities
 
                 // Only update if there is a change
                 var groupCredits = TerminalPatch.Instance ? TerminalPatch.Instance.groupCredits : -1;
-                if (_creditsMonitorTexts.Count > 0 && groupCredits != _lastUpdatedCredits)
+                if (groupCredits != _lastUpdatedCredits)
                 {
                     _lastUpdatedCredits = groupCredits;
 
-                    if (UpdateGenericTextList(_creditsMonitorTexts, $"CREDITS:\n${ApplyColorToText($"{_lastUpdatedCredits}", "ffff00")}"))
+                    if (_creditsMonitorTexts.Count > 0 && UpdateGenericTextList(_creditsMonitorTexts, $"CREDITS:\n{ApplyColorToText($"${_lastUpdatedCredits}", "ffff00")}"))
                     {
                         Plugin.MLS.LogInfo("Updated credits display.");
                     }
+
+                    UpdateNetWorthMonitors();
                 }
             }
         }
@@ -1064,6 +1077,25 @@ namespace GeneralImprovements.Utilities
                 if (UpdateGenericTextList(_quotaInfoMonitorTexts, $"{dateline}\n{totalQuota}\n{deadline}"))
                 {
                     Plugin.MLS.LogInfo("Updated quota info display.");
+                }
+            }
+        }
+
+        public static void UpdateNetWorthMonitors()
+        {
+            if (_netWorthMonitorTexts.Count > 0 && TimeOfDay.Instance != null)
+            {
+                int credits = TerminalPatch.Instance ? TerminalPatch.Instance.groupCredits : 0;
+                var shipScrap = GrabbableObjectsPatch.GetAllScrap().Where(s => s.isInShipRoom && s.isInElevator);
+                int scrapCount = shipScrap.Count();
+                int scrapValue = shipScrap.Sum(s => s.scrapValue);
+
+                string creditsText = ApplyColorToText($"${credits}", "ffff00");
+                string scrapText = ApplyColorToText($"+ {scrapCount} ITEMS\n(${scrapValue})", "80ffff");
+
+                if (UpdateGenericTextList(_netWorthMonitorTexts, $"NET WORTH:\n{creditsText}\n{scrapText}"))
+                {
+                    Plugin.MLS.LogInfo("Updated net worth display.");
                 }
             }
         }

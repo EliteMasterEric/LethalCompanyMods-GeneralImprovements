@@ -39,6 +39,7 @@ namespace GeneralImprovements
             Deadline,
             DoorPower,
             FancyWeather,
+            NetWorth,
             OvertimeCalculator,
             PlayerHealth,
             PlayerHealthExact,
